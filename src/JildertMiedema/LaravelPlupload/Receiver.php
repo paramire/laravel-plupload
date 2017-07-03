@@ -2,6 +2,7 @@
 
 namespace JildertMiedema\LaravelPlupload;
 
+use Response;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -104,8 +105,14 @@ class Receiver
             $result = $this->receiveSingle($name, $handler);
         }
 
-        $response['result'] = $result;
-
-        return $response;
+        if(is_array($result)){
+            $response['result'] = array_key_exists('data', $result) ? $result['data'] : $result;
+            $code = array_key_exists('code', $result) ? $result['code'] : 200;
+        } else {
+            $response['result'] = $result;
+            $code = 200;
+        }
+        
+        return Response::json($response, $code);
     }
 }
